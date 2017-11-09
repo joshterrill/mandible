@@ -1,0 +1,42 @@
+{
+  "name": "mandible",
+  "version": "0.0.1",
+  "description": "a blind-friendly nodejs application to run on raspian",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joshterrill/mandible.git"
+  },
+  "keywords": [
+    "blind",
+    "raspian",
+    "raspberry",
+    "pi",
+    "pi",
+    "aria",
+    "say",
+    "youtube",
+    "pandora",
+    "handicap",
+    "friendly"
+  ],
+  "author": "Josh Terrill",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joshterrill/mandible/issues"
+  },
+  "homepage": "https://github.com/joshterrill/mandible#readme",
+  "dependencies": {
+    "dotenv": "^4.0.0",
+    "lame": "^1.2.4",
+    "request": "^2.83.0",
+    "say": "^0.14.0",
+    "simple-youtube-api": "^3.0.1",
+    "speaker": "^0.4.0",
+    "youtube-audio-player": "^1.0.0"
+  }
+}
