@@ -18,7 +18,7 @@ let query = '';
 const quietKeys = ['escape', 'return', 'enter', 'command', 'control'];
 
 process.on('exit', (code) => {
-  clearState();  
+  clearState();
   say.speak('Goodbye.');
 });
 // TODO: figure out how to restart app w/ child_process.spawn('node', ['index.js']);
@@ -47,10 +47,8 @@ process.stdin.on('keypress', (str, key) => {
       if (JSON.stringify(payload) === '{}') {
         query += str;
         if (key.name === 'return' || key.name === 'enter') {
-          // TODO: figure out way to solve the number 1 getting added to beginning after choosing 1 as an option
           const youtubeSearchTerm = query.replace(query[0], '');
-          
-          youtube.searchVideos(youtubeSearchTerm, 1)
+          youtube.searchVideos(youtubeSearchTerm, 9)
             .then(videos => {
               status = 'videos';
               payload = {
@@ -58,16 +56,21 @@ process.stdin.on('keypress', (str, key) => {
                 chosenVideo: -1
               }
               say.stop();
-              say.speak(`Showing videos for ${youtubeSearchTerm}`, undefined, undefined, (err) => {
-                async.forEachOf(videos, (video, index, callback) => { 
-                  // TODO: figure out how to not continue for each until speak is done
-                  say.speak(`Video ${index + 1}... Title. ${video.title}`, undefined, undefined, (err) => {
-                    callback();
-                  });
-                }, (err) => {
-                  say.stop();
-                  say.speak('What video number do you want to play?');
-                });
+              say.speak(`Showing videos for ${youtubeSearchTerm}`, undefined, undefined, async (err) => {
+                for (let [index, video] of videos.entries()) {
+                  await new Promise((resolve, reject) => {
+                    say.speak(`Video ${index + 1}... Title. ${video.title}`, undefined, undefined, (err) => {
+                        if (err) {
+                          reject()
+                        } else {
+                          resolve();
+                        }
+                    });
+                  }).catch(err => console.log);
+                  
+                }
+                say.stop();
+                say.speak('What video number do you want to play?');
               });
             }).catch(console.log);
         }
