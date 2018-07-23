@@ -14,6 +14,7 @@ process.stdin.setRawMode(true);
 let mode = '';
 let payload = {};
 let query = '';
+let stopVideoListLoop = true;
 
 const quietKeys = ['escape', 'return', 'enter', 'command', 'control'];
 
@@ -21,7 +22,6 @@ process.on('exit', (code) => {
   clearState();
   say.speak('Goodbye.');
 });
-// TODO: figure out how to restart app w/ child_process.spawn('node', ['index.js']);
 
 process.stdin.on('keypress', (str, key) => {
   if (key) {
@@ -56,25 +56,14 @@ process.stdin.on('keypress', (str, key) => {
                 chosenVideo: -1
               }
               say.stop();
-              say.speak(`Showing videos for ${youtubeSearchTerm}`, undefined, undefined, async (err) => {
-                for (let [index, video] of videos.entries()) {
-                  await new Promise((resolve, reject) => {
-                    say.speak(`Video ${index + 1}... Title. ${video.title}`, undefined, undefined, (err) => {
-                        if (err) {
-                          reject()
-                        } else {
-                          resolve();
-                        }
-                    });
-                  }).catch(err => console.log);
-                  
-                }
-                say.stop();
-                say.speak('What video number do you want to play?');
+              say.speak(`Showing videos for ${youtubeSearchTerm}`, undefined, undefined, (err) => {
+                stopVideoListLoop = false;
+                processVideos(videos);
               });
             }).catch(console.log);
         }
       } else if(JSON.stringify(payload) !== '{}' && payload.chosenVideo === -1) {
+        stopVideoListLoop = true;
         payload.chosenVideo = key.name;
         say.stop();
         say.speak('Playing video.', undefined, undefined, (err) => {
@@ -89,4 +78,20 @@ function clearState() {
   mode = '';
   payload = {};
   query = '';
+}
+
+async function processVideos(videos) {
+  for (let [index, video] of videos.entries()) {
+    if (stopVideoListLoop) {
+      break;
+    }
+    await (new Promise((resolve, reject) => {
+      say.speak(`Video ${index + 1}... Title. ${video.title}`, undefined, undefined, (err) => {
+        resolve();
+      });
+    }));
+  }
+
+  say.stop();
+  say.speak('What video number do you want to play?');
 }
